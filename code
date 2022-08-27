@@ -1,0 +1,307 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace ProyectoAhorcado
+{
+    public partial class Form1 : Form
+    {
+        int A;
+        int B;
+        int Temas = 0;
+        int Oportunidades = 0;
+        char[] PalabrasAdivinadas;
+        char[] PalabrasSeleccionadas;
+        char[] Alfabeto;
+        String[] Palabras;
+
+        public Form1()
+        {
+            InitializeComponent();
+            BtnPlay.Enabled = false;
+        }
+
+        private void BtnPlay_Click(object sender, EventArgs e)
+        {
+            IniciarJuego();
+        }
+
+        public void IniciarJuego()
+        {
+             A=0;
+             B=0;
+            FlFichas.Controls.Clear();
+            FlFichas.Enabled = true;
+            PicAhorcado.Image = null;
+            Oportunidades = 0;
+            switch (Temas)
+            {
+                case 1:
+                    CargarPalabras1();
+                    break;
+                case 2:
+                    CargarPalabras2();
+                    break;
+                case 3:
+                    CargarPalabras3();
+                    break;
+                case 4:
+                    CargarPalabras4();
+                    break;
+            }
+          
+            Alfabeto = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".ToCharArray();
+
+            Random random = new Random();
+            int IndicePalabraS = random.Next(0, Palabras.Length);
+            PalabrasSeleccionadas = Palabras[IndicePalabraS].ToUpper().ToCharArray();
+            PalabrasAdivinadas = PalabrasSeleccionadas;
+
+
+            
+            foreach(char letraAlfabeto in Alfabeto)
+            {
+                Button btnLetra = new Button();
+                btnLetra.Tag = "";
+                btnLetra.Text = letraAlfabeto.ToString();
+                btnLetra.Width = 50;
+                btnLetra.Height = 50;
+                //otras modificaciones del boton
+                btnLetra.Click += Comparar;
+                btnLetra.BackgroundImageLayout = ImageLayout.Center;
+                btnLetra.Name = letraAlfabeto.ToString();
+                FlFichas.Controls.Add(btnLetra);
+            }
+            
+            FlPalabra.Controls.Clear();
+
+            
+            for (int indiceLetra = 0; indiceLetra < PalabrasSeleccionadas.Length; indiceLetra++)
+            {
+                Button Letra = new Button();
+                Letra.Tag = PalabrasSeleccionadas[indiceLetra].ToString();
+                Letra.Width = 50;
+                Letra.Height = 50;
+
+                Letra.Text = "-";
+                Letra.BackgroundImageLayout = ImageLayout.Center;
+                
+
+                Letra.Name = "Adivinado" + indiceLetra.ToString();
+                FlPalabra.Controls.Add(Letra);
+                A++;
+            }
+        }
+
+        void Comparar(object sender,EventArgs e)
+        {
+            bool encontrado = false;
+            Button btn = (Button)sender;
+            
+            btn.BackColor = Color.White;
+            btn.ForeColor = Color.Black;
+            btn.Enabled = false;
+
+           
+           for(int IndiceRevisar = 0; IndiceRevisar < PalabrasAdivinadas.Length; IndiceRevisar++)
+            {
+                if(PalabrasAdivinadas[IndiceRevisar]==Char.Parse(btn.Text))
+                { 
+                Button tbx = this.Controls.Find("Adivinado" + IndiceRevisar, true).FirstOrDefault() as Button;
+                tbx.Text = PalabrasAdivinadas[IndiceRevisar].ToString();
+                PalabrasAdivinadas[IndiceRevisar] = '-';
+                encontrado = true;
+
+                    
+                    if ( !tbx.Text.Equals('-'))
+                    {
+                        B++;
+                        
+
+                    }
+
+                }
+
+            }
+           if(A==B)
+            {
+                MessageBox.Show("ganaste");
+                FlFichas.Enabled = false;
+
+            }
+           
+            
+            
+
+
+            if (!encontrado)
+            {
+                Oportunidades = Oportunidades + 1;
+                PicAhorcado.Image = (Bitmap)Properties.Resources.ResourceManager.GetObject("" + Oportunidades);
+                if (Oportunidades == 8)
+                {
+                    for (int IndiceValorLetra = 0; IndiceValorLetra < PalabrasSeleccionadas.Length; IndiceValorLetra++)
+                    {
+                        Button btnLetra = this.Controls.Find("Adivinado" + IndiceValorLetra, true).FirstOrDefault() as Button;
+                        btnLetra.Text = btnLetra.Tag.ToString();
+                    }
+                    FlFichas.Enabled = false;
+                    MessageBox.Show("Perdiste");
+                }
+            }
+
+
+
+        }
+        private void CargarPalabras1()
+        {
+            
+            int contarLinea = 0;
+
+           
+            StreamReader archivo;
+            string linea = "";
+            
+            archivo = File.OpenText("Tema1.txt");
+            do
+            {
+                
+                linea = archivo.ReadLine();
+                
+                if (linea != null)
+                {
+                    
+                    Palabras = linea.Split(',');
+                    break;
+                }
+            }
+           
+            while (linea != null);
+           
+            archivo.Close();
+
+
+
+        }
+        private void CargarPalabras2()
+        {
+            
+            int contarLinea = 0;
+            
+            StreamReader archivo;
+            string linea = "";
+            
+            archivo = File.OpenText("Tema2.txt");
+            do
+            {
+                
+                linea = archivo.ReadLine();
+               
+                contarLinea++;
+                if (linea != null)
+                {
+                    
+                    Palabras = linea.Split(',');
+                    break;
+                }
+            }
+           
+            while (linea != null);
+            
+            archivo.Close();
+
+
+        }
+        private void CargarPalabras3()
+        {
+           
+            int contarLinea = 0;
+           
+            StreamReader archivo;
+            string linea = "";
+            
+            archivo = File.OpenText("Tema3.txt");
+            do
+            {
+                
+                linea = archivo.ReadLine();
+                
+                contarLinea++;
+                if (linea != null)
+                {
+                    
+                    Palabras = linea.Split(',');
+                    break;
+                }
+            }
+            
+            while (linea != null);
+            
+            archivo.Close();
+
+
+
+        }
+        private void CargarPalabras4()
+        {
+            
+            int contarLinea = 0;
+            
+            StreamReader archivo;
+            string linea = "";
+            
+            archivo = File.OpenText("Tema4.txt");
+            do
+            {
+                
+                linea = archivo.ReadLine();
+                
+                contarLinea++;
+                if (linea != null)
+                {
+                    
+                    Palabras = linea.Split(',');
+                    break;
+                }
+            }
+            
+            while (linea != null);
+            
+            archivo.Close();
+
+
+
+        }
+        private void Tema1_Click(object sender, EventArgs e)
+        {
+            Temas = 1;
+            BtnPlay.Enabled= true;
+        }
+
+        private void Tema2_Click(object sender, EventArgs e)
+        {
+            Temas = 2;
+            BtnPlay.Enabled = true;
+        }
+
+        private void Tema3_Click(object sender, EventArgs e)
+        {
+            Temas = 3;
+            BtnPlay.Enabled = true;
+        }
+
+        private void Tema4_Click(object sender, EventArgs e)
+        {
+            Temas = 4;
+            BtnPlay.Enabled = true;
+        }
+    }
+      
+}
